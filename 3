@@ -1,0 +1,44 @@
+import numpy as np
+np.random.seed(42)
+X = np.random.rand(64, 12)  # 64个样本，每个样本12个像素
+y = np.random.randint(2, size=64)  # 64个标签，值为0或1
+input_size = 12  # 输入层大小
+hidden_size = 3  # 隐藏层大小
+output_size = 2  # 输出层大小
+# 随机初始化权重和偏置
+w_2_nm = np.random.randn(input_size, hidden_size)#输入层到隐藏层权重
+b_2_n = np.random.randn(hidden_size)  # 隐藏层的偏置
+w_3_nm= np.random.randn(hidden_size, output_size)  # 隐藏层到输出层的权重
+b_3_n = np.random.randn(output_size)  # 输出层的偏置
+#激活函数及其倒导数
+def sigmoid(x):
+    return 1/(1+np.exp(-x))
+def sigmod_derivative(x):
+    return x*(1-x)
+# 前向传播
+def forward_propagation(input_data):
+    #隐藏层输入和输出
+    z_2_n=np.dot(input_data,w_2_nm)+b_2_n
+    a_2_n=sigmoid(z_2_n)
+    #输出层加权输入和输出
+    z_3_n=np.dot(a_2_n,w_3_nm) +b_3_n
+    a_3_n = sigmoid(z_3_n)
+    return z_2_n,a_2_n, z_3_n,a_3_n
+#输入数据
+input_data=[1,1,1,1,0,1,1,0,1,1,1,1]
+target_output=[0,1]
+z_2_n,a_2_n, z_3_n,a_3_n = forward_propagation(input_data)
+#计算代价函数
+cost_function=0.5 * np.sum((a_3_n - target_output) ** 2)
+#输出
+if output_output[0] > output_output[1]:
+    predicted_label = 0
+else:
+    predicted_label = 1
+print("目标输出:", target_output)
+print("隐藏层输入:", z_2_n)
+print("隐藏层输出:", a_2_n)
+print("输出层加权输入:", z_3_n)
+print("输出层输出:", a_3_n)
+print("代价函数:", cost_function)
+print("预测结果:", predicted_label)
