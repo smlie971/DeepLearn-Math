@@ -1,0 +1,74 @@
+import numpy as np
+
+# 输入数据
+x = np.array([0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0]).reshape([6, 6])
+target = np.array([1, 0, 0])  # 目标输出
+
+# 卷积核和偏置
+W1 = np.array([-1, -1, -1, -1, 8, -1, -1, -1, -1]).reshape([3, 3])
+W2 = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1]).reshape([3, 3])
+b_F1 = 0
+b_F2 = 0
+
+# Sigmoid 函数及其导数
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return sigmoid(x) * (1 - sigmoid(x))
+
+# 前向传播
+# 卷积层
+z1 = np.zeros((4, 4))
+z2 = np.zeros((4, 4))
+for i in range(4):
+    for j in range(4):
+        z1[i, j] = np.sum(x[i:i+3, j:j+3] * W1) + b_F1
+        z2[i, j] = np.sum(x[i:i+3, j:j+3] * W2) + b_F2
+
+# 激活层
+a1 = sigmoid(z1)
+
+# 池化层
+p1 = np.array([a1[0:2, 0:2].max(), a1[0:2, 2:4].max(), a1[2:4, 0:2].max(), a1[2:4, 2:4].max()]).reshape([2, 2])
+
+# 输出层
+w3 = np.array([0.5, 0.5, 0.5, 0.5]).reshape([2, 2])
+b3 = 0
+z3 = np.sum(p1 * w3) + b3
+a3 = sigmoid(z3)
+
+# 损失函数
+loss = 0.5 * (a3 - target[0]) ** 2
+print("Loss:", loss)
+
+# 反向传播
+# 输出层
+delta_output = (a3 - target[0]) * sigmoid_derivative(z3)
+dw3 = p1 * delta_output
+db3 = delta_output
+
+# 池化层
+delta_p1 = delta_output * w3
+delta_p1 = delta_p1.reshape([2, 2])
+
+# 卷积层
+delta_a1 = np.zeros((4, 4))
+delta_a1[0:2, 0:2] = delta_p1[0, 0]
+delta_a1[0:2, 2:4] = delta_p1[0, 1]
+delta_a1[2:4, 0:2] = delta_p1[1, 0]
+delta_a1[2:4, 2:4] = delta_p1[1, 1]
+
+delta_z1 = delta_a1 * sigmoid_derivative(z1)
+dw1 = np.zeros((3, 3))
+for i in range(4):
+    for j in range(4):
+        dw1 += x[i:i+3, j:j+3] * delta_z1[i, j]
+db1 = np.sum(delta_z1)
+
+print("dw1:")
+print(dw1)
+print("db1:", db1)
+print("dw3:")
+print(dw3)
+print("db3:", db3)
